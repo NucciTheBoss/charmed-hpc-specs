@@ -159,8 +159,7 @@ The StateSaveLocation data is stored on the primary instance local storage and e
 
 #### Cloud native shared storage
 
-![](https://i.imgur.com/lMILAt4.png)
-*Example use case for Microsoft Azure shared disks. [Source](https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared#persistent-reservation-flow).*
+*For an example use case with Microsoft Azure shared disks, see https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared#persistent-reservation-flow*
 
 Cloud-specific functionality such as [Azure shared disks](https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared), a feature allowing users to attach a disk to multiple VMs simultaneously, is used to store StateSaveLocation data. Either Terraform plans or calls to the relevant APIs from the charm code are used to provision and attach the storage.
 
@@ -174,8 +173,7 @@ Cloud-specific functionality such as [Azure shared disks](https://learn.microsof
 
 #### DRBD replication
 
-![](https://i.imgur.com/i3gGsia.png)
-*Example of DRBD data replication. [Source](https://linbit.com/blog/shared-nothing-high-availability/).*
+*For an example of DRBD data replication, see https://linbit.com/blog/shared-nothing-high-availability/*
 
 StateSaveLocation data is stored on a dedicated block device per `slurmctld` instance. The primary instance writes to its local block device and this is mirrored to all backup instances using [Distributed Replicated Block Device (DRBD)](https://linbit.com/drbd/).
 
@@ -246,7 +244,7 @@ The [rsync](https://rsync.samba.org/) tool is used to synchronize SaveStateLocat
 
 #### Rsync over NFS replication
 
-![](https://i.imgur.com/NwC3BjM.png)
+![](static/rsync-over-nfs.png)
 
 As in "Rsync over SSH replication" but NFS shares are used to make the StateSaveLocation data available, rather than SSH. All instances export their StateSaveLocation directory over NFS. All backup instances mount the primary’s instance. The backup instances periodically run rsync to maintain a local duplicate of the data.
 
@@ -458,8 +456,6 @@ This proof of concept was not pursued further due to the complexity of managing 
 
 #### Gluster replication
 
-![](https://i.imgur.com/TA19seG.png)
-
 A Gluster [replicated volume](https://docs.gluster.org/en/main/Administrator-Guide/Setting-Up-Volumes/#creating-replicated-volumes) is used to create copies of StateSaveLocation data across all instances, with each instance contributing its own brick (export directory).
 
 **Advantages**
@@ -550,7 +546,7 @@ The `slurmctld` service source code is modified to store the StateSaveLocation d
 
 #### Shared storage via filesystem-client (chosen approach)
 
-![](https://i.imgur.com/D8ZusWr.png)
+![](static/shared-storage.png)
 
 An independent storage system is set up, e.g. using storage services provided by the underlying cloud or the user’s own MicroCeph deployment. Each `slurmctld` unit mounts this storage, via the [filesystem-client](https://charmhub.io/filesystem-client) subordinate charm, and uses it to store StateSaveLocation data.
 
@@ -586,7 +582,7 @@ Only the aspect of each unit writing its own hostname into its databag and some 
 
 #### slurmctld
 
-![](https://i.imgur.com/JcyZ0Z8.png)
+![](static/databags.png)
 
 *Illustration of flow for data in the slurmctld peer relation and local unit databags.*
 
