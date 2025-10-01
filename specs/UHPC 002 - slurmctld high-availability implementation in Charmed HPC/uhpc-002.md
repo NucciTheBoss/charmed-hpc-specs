@@ -115,7 +115,30 @@ The `if not self._charm.slurm_installed:` guards in these interfaces have been r
 
 ## Failover tests
 
-TODO: Details of Jubilant test scenarios to go here.
+To be confident the implemented approach for HA is suitable, a [Jubilant](https://github.com/canonical/jubilant) test suite has been written to exercise a cluster in its ability to handle scaling and availability events. This suite adds to the existing Slurm charm integration tests and, given it increases test time by 30-60 minutes on moderately powered desktop,  has been gated by flag: `--run-high-availability`.
+
+Cluster state is tested via the `scontrol ping` Slurm client command, typically executed on a sackd login node, to confirm which slurmctld controllers are “UP” or “DOWN”. The `sinfo` client command is also used to determine that the slurmctld controllers are responsive to requests.
+
+The initial cluster state is:
+
+* 1x slurmctld, deployed as a VM to allow for filesystem-client integration and with reduced failover timeouts via config `"slurm-conf-parameters": "SlurmctldTimeout=10\n".`
+* 1x sackd, slurmd, slurmdbd, slurmrestd, mysql \- all containers.
+* 1x microceph, deployed as a VM with 2G of loopback storage and a CephFS filesystem configured.
+* 1x cephfs-server-proxy, configured against the CephFS filesystem.
+* 1x filesystem-client, integrated with slurmctld.
+
+The following scenarios are tested sequentially. The cluster state resulting from the previous test is the initial state of the cluster for the subsequent test:
+
+1. Scaling up slurmctld by two units.
+2. Scaling down slurmctld by one unit.
+3. Failover to backup slurmctld after stopping primary service.
+4. Primary resumes control after restarting stopped service.
+5. Failover to backup slurmctld after powering off primary machine.
+6. Primary resumes control after restarting powered-off machine.
+7. Scaling up slurmctld by one unit while primary unit has failed.
+8. Removing failed controller slurmctld unit.
+9. Removing the leader slurmctld unit.
+10. Scaling up slurmctld and sackd simultaneously
 
 ## Alternative approaches considered
 
