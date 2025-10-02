@@ -115,7 +115,30 @@ The `if not self._charm.slurm_installed:` guards in these interfaces have been r
 
 ## Failover tests
 
-TODO: Details of Jubilant test scenarios to go here.
+To be confident the implemented approach for HA is suitable, a [Jubilant](https://github.com/canonical/jubilant) test suite has been written to exercise a cluster in its ability to handle scaling and availability events. This suite adds to the existing Slurm charm integration tests and, given it increases test time by 30-60 minutes on moderately powered desktop,  has been gated by flag: `--run-high-availability`.
+
+Cluster state is tested via the `scontrol ping` Slurm client command, typically executed on a sackd login node, to confirm which slurmctld controllers are “UP” or “DOWN”. The `sinfo` client command is also used to determine that the slurmctld controllers are responsive to requests.
+
+The initial cluster state is:
+
+* 1x slurmctld, deployed as a VM to allow for filesystem-client integration and with reduced failover timeouts via config `"slurm-conf-parameters": "SlurmctldTimeout=10\n".`
+* 1x sackd, slurmd, slurmdbd, slurmrestd, mysql \- all containers.
+* 1x microceph, deployed as a VM with 2G of loopback storage and a CephFS filesystem configured.
+* 1x cephfs-server-proxy, configured against the CephFS filesystem.
+* 1x filesystem-client, integrated with slurmctld.
+
+The following scenarios are tested sequentially. The cluster state resulting from the previous test is the initial state of the cluster for the subsequent test:
+
+1. Scaling up slurmctld by two units.
+2. Scaling down slurmctld by one unit.
+3. Failover to backup slurmctld after stopping primary service.
+4. Primary resumes control after restarting stopped service.
+5. Failover to backup slurmctld after powering off primary machine.
+6. Primary resumes control after restarting powered-off machine.
+7. Scaling up slurmctld by one unit while primary unit has failed.
+8. Removing failed controller slurmctld unit.
+9. Removing the leader slurmctld unit.
+10. Scaling up slurmctld and sackd simultaneously
 
 ## Alternative approaches considered
 
@@ -159,8 +182,7 @@ The StateSaveLocation data is stored on the primary instance local storage and e
 
 #### Cloud native shared storage
 
-![](https://i.imgur.com/lMILAt4.png)
-*Example use case for Microsoft Azure shared disks. [Source](https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared#persistent-reservation-flow).*
+*For an example use case with Microsoft Azure shared disks, see https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared#persistent-reservation-flow*
 
 Cloud-specific functionality such as [Azure shared disks](https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared), a feature allowing users to attach a disk to multiple VMs simultaneously, is used to store StateSaveLocation data. Either Terraform plans or calls to the relevant APIs from the charm code are used to provision and attach the storage.
 
@@ -174,8 +196,7 @@ Cloud-specific functionality such as [Azure shared disks](https://learn.microsof
 
 #### DRBD replication
 
-![](https://i.imgur.com/i3gGsia.png)
-*Example of DRBD data replication. [Source](https://linbit.com/blog/shared-nothing-high-availability/).*
+*For an example of DRBD data replication, see https://linbit.com/blog/shared-nothing-high-availability/*
 
 StateSaveLocation data is stored on a dedicated block device per `slurmctld` instance. The primary instance writes to its local block device and this is mirrored to all backup instances using [Distributed Replicated Block Device (DRBD)](https://linbit.com/drbd/).
 
@@ -246,7 +267,7 @@ The [rsync](https://rsync.samba.org/) tool is used to synchronize SaveStateLocat
 
 #### Rsync over NFS replication
 
-![](https://i.imgur.com/NwC3BjM.png)
+![](static/rsync-over-nfs.png)
 
 As in "Rsync over SSH replication" but NFS shares are used to make the StateSaveLocation data available, rather than SSH. All instances export their StateSaveLocation directory over NFS. All backup instances mount the primary’s instance. The backup instances periodically run rsync to maintain a local duplicate of the data.
 
@@ -458,8 +479,6 @@ This proof of concept was not pursued further due to the complexity of managing 
 
 #### Gluster replication
 
-![](https://i.imgur.com/TA19seG.png)
-
 A Gluster [replicated volume](https://docs.gluster.org/en/main/Administrator-Guide/Setting-Up-Volumes/#creating-replicated-volumes) is used to create copies of StateSaveLocation data across all instances, with each instance contributing its own brick (export directory).
 
 **Advantages**
@@ -550,7 +569,7 @@ The `slurmctld` service source code is modified to store the StateSaveLocation d
 
 #### Shared storage via filesystem-client (chosen approach)
 
-![](https://i.imgur.com/D8ZusWr.png)
+![](static/shared-storage.png)
 
 An independent storage system is set up, e.g. using storage services provided by the underlying cloud or the user’s own MicroCeph deployment. Each `slurmctld` unit mounts this storage, via the [filesystem-client](https://charmhub.io/filesystem-client) subordinate charm, and uses it to store StateSaveLocation data.
 
@@ -586,7 +605,7 @@ Only the aspect of each unit writing its own hostname into its databag and some 
 
 #### slurmctld
 
-![](https://i.imgur.com/JcyZ0Z8.png)
+![](static/databags.png)
 
 *Illustration of flow for data in the slurmctld peer relation and local unit databags.*
 
