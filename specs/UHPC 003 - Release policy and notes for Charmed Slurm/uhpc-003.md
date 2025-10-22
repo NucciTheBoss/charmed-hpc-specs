@@ -1,73 +1,107 @@
 ---
-title: release policy and notes for Charmed Slurm
+title: Release policy for Charmed Slurm
 
 ---
 
 # Abstract
 
-This spec details the release policy and release notes format for Charmed Slurm releases. Charmed Slurm contains the Slurm workload manager and related infrastructure components such as observability and scaling.
+This spec details the release policy Charmed Slurm.
 
 # Rationale
 
-For a given product, a consistent release policy and release notes format is necessary to update users and developers
-on the updates and changes to the product. Different products, both Canonical and upstream, have a variety of release
-policies and cadances, and requires a plan of action to best align Charmed HPC's releases.
+A consistent release policy is necessary to keep our community aware of upcoming major changes, bug fixes, and security updates, while ensuring that the community has some expected degree of stability.
+
+Charmed Slurm components:
+
+- Slurm machine charms
+- `slurm-wlm` Debian packages
+
+Since Charmed Slurm is a composition of multiple artifacts, there must be a well-defined release policy that developers and users can reference to know when they can expect things such as when the version of Slurm will be upgraded, when new features will be added to the charms, where they can go to get security updates, etc.
 
 # Specification
 
-## Release Cadence
+## Charmed Slurm tracking upstream
 
-Current release cadence will be based around feature implementation and upstream Slurm releases, which happen twice a year. Exact timing will vary, and all major releases will be announced.
+SchedMD releases a new version of Slurm every six months, with bug and security fix support for an 18-month cycle.
 
+[Source](https://www.schedmd.com/slurm-releases-move-to-a-six-month-cycle/)
 
-### Cadence considerations
+Charmed Slurm's versioning will map to upstream release of Slurm that it operates. Example:
 
-* Don't tie release to one specific upstream, or Ubuntu
-* Not currently in a position to commit to LTS releases
-* Potentially a yearly release - 'Charmed HPC 2025.1'
-* Focus on how the charms are released
-  * When is 'stable' reached for a given charm
-  * Core features early in cycle to have an idea by mid-cycle for what's needed to finish cycle strong
+- Charmed Slurm 25.11 operates Slurm 25.11
+- Charmed Slurm 26.04 operates Slurm 26.05
 
+## Release cadence
 
-## Upstream dependencies and release cadences
+Charmed Slurm will follow behind upstream Slurm releases by one release - approximately six months. Feature freeze for the next Charmed Slurm release will be up to 6 months after a new version of Slurm is released by SchedMD, with a soft freeze at the four month mark. This timeframe is for maintainers to add new features to the Slurm charms, and backport the previous release of Slurm to the current Ubuntu LTS release. Example schedule:
 
-* Slurm - major releases are twice a year
-* Ubuntu - minor release twice a year, LTS release every other year
+<!-- 
+- Slurm 26.05 is released by SchedMD.
+- Work to backport Slurm 25.11 to Noble Numbat (Ubuntu 24.04 LTS) begins (24.04 LTS includes Slurm 23.11)
+- 4 months in - Charmed Slurm "soft freeze"
+  - "Soft freeze" implies that no MAJOR changes (feature deprecations, interface breaking changes, new dependencies) will be introduced after this date.
+- 2 months after "soft freeze" we have "hard freeze". After "hard freeze" no new changes can be introduced. Bug and security fixes can still be backported.
+- After "hard freeze", the new version of Charmed Slurm will be released. 
+- During the period between the "soft freeze" and "hard freeze" will be allocated to testing Charmed Slurm and fixing known issues. Changes can still be introduced, but major changes will be pushed off to the next release of Charmed Slurm.
+-->
 
-## Release Types
+```mermaid
+gantt
+   title Example Charmed Slurm Release steps
+   dateFormat YYYY-MM
+   section Slurm
+        Slurm 26.05 released by SchedMD                         :milestone, a1, 2026-05, 0d
+        Slurm 26.05 backport to Noble Numbat (Ubuntu 24.04 LTS) :after a1, 60d
+   section Charmed Slurm
+        Feature development from Slurm 26.05                    :2026-05, until b1
+        'Soft freeze'                                           :milestone, b1, 2026-09, 0d
+        Feature polishing - no breaking changes or new dependencies :after b1, until b2
+        'Hard freeze'                                           :milestone, b2, 2026-11, 0d
+        Charmed Slurm 26.05 release                             :milestone, 2026-12, 0d
+   section Ubuntu
+        Noble Numbat 24.04 LTS                                  :2026-01, until u1
+        Resolute Raccoon 26.04 LTS                              :u1, 2026-04, 2027-01
+```
 
-* Major release - new version of Slurm, breaking changes, new base OS
-* Minor release - new features, but no breaking changes
-* Patch release - bug and security fixes
+## Support life-cycle
+
+Outside exceptional circumstances, each Charmed Slurm release will receive bug and security fix support for 1 year, following the upstream Slurm support life-cycle.
+
+## Versioning scheme for Charmed Slurm
+
+Version format: `<upstream Slurm version>-<minor/patch version #>`. Example Charmed Slurm release numbers:
+
+- Charmed Slurm now includes Slurm 25.11: `25.11-0`
+- Bugfix is released: `25.11-1` 
+- Security update is released: `25.11-2`
+
+* Major release - new version of Slurm, feature changes, new Ubuntu base version
+    * This version number will only change with the new version of Slurm. 
+* Minor release - bug and security fixes
   * Note that running `juju refresh` is necessary to pull latest security and bug fix updates
+
+The minor version numbers will be used for release notes and will list corresponding revision numbers for each charm. Unless explictely stated otherwise, when a Charmed Slurm release is referenced - `23.11` - the latest minor patch in the stable branch is included. 
 
 
 ### Release channels
 
-* Edge, the development channel
-* Candidate, test the new release before publishing (to catch early bugs)
-* Stable
-
-* Each release has its own track
-  * Corresponding GitHub branch and each of the three channels
-  * Corrensponding commit hash is included in the charm channel release
-* No breaking changes should be made to integrations, configuration options, or actions in a stable track of a charm
-  * To introduce breaking changes, a new track should be created
-
-* 'stable' vs 'edge' for slurm charms
-  * how to handle when one charm updates but not others?
+* Each major release has its own Charmhub track, e.g. "25.11"
+* Each track has a corresponding GitHub branch, e.g. "25.11"
+* Each track on Charmhub provides three channels:
+   * Edge, the development channel
+   * Candidate, to test the new release before publishing 
+   * Stable
+     * No breaking changes will be made to integrations, configuration options, or actions in a stable channel of a charm
 
 ## Documentation
 
-* User is expected to use the charm version that comes with a specific release
-  * Cannot guarantee 'Franken'-charm collections
-  * If a user requirement necessitates versions that are not from the same release, they should open an issue on Github
+Warnings/limitations that will be included in the published documentation alongside the release notes:
+
+* Users are expected to use the charm version (Charmhub track) that comes with a specific Slurm release
+  * For example, Charmed Slurm version 23.11 should *only* be use with the 23.11 release of Slurm 
+* Due to potential breaking changes between major Slurm releases, Charmed Slurm cannot guarantee backwards compatibility with previous major Charmed Slurm versions
+  * If a user requirement necessitates versions that are not from corresponding releases, they should open an issue on Github
 (or Support Discussion) and contact the team
-
-## Support Timeframe
-
-Each major release will be supported for 18 months. For major commercial offerings, there will also be a 10 LTS (long-term support) release.
 
 ## Process for updates
 
@@ -84,14 +118,6 @@ Each major release will be supported for 18 months. For major commercial offerin
 <!-- List of supported artifacts with source code links and issue tracker refs
  -->
 
-### Release Structure
-
-<!-- Table of corresponding pieces and commit/channel/tag/etc for each:
-
-* E.g. stable release of the Slurm charms are published to 25.04/stable on Charmhub
-  * ^ Mirror this bit in the release notes. E.g. how do you actually pull Charmed Slurm 25.04
-* PPA to get supported Slurm packages.
-* Any Terraform plans for reference deployment (maybe, homies could just pull from the correct channel) -->
 
 ## Examples
 
