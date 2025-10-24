@@ -33,17 +33,7 @@ Charmed Slurm's versioning will map to upstream release of Slurm that it operate
 
 ## Release cadence
 
-Charmed Slurm will follow behind upstream Slurm releases by one release - approximately six months. Feature freeze for the next Charmed Slurm release will be up to 6 months after a new version of Slurm is released by SchedMD, with a soft freeze at the four month mark. This timeframe is for maintainers to add new features to the Slurm charms, and backport the previous release of Slurm to the current Ubuntu LTS release. Example schedule:
-
-<!-- 
-- Slurm 26.05 is released by SchedMD.
-- Work to backport Slurm 25.11 to Noble Numbat (Ubuntu 24.04 LTS) begins (24.04 LTS includes Slurm 23.11)
-- 4 months in - Charmed Slurm "soft freeze"
-  - "Soft freeze" implies that no MAJOR changes (feature deprecations, interface breaking changes, new dependencies) will be introduced after this date.
-- 2 months after "soft freeze" we have "hard freeze". After "hard freeze" no new changes can be introduced. Bug and security fixes can still be backported.
-- After "hard freeze", the new version of Charmed Slurm will be released. 
-- During the period between the "soft freeze" and "hard freeze" will be allocated to testing Charmed Slurm and fixing known issues. Changes can still be introduced, but major changes will be pushed off to the next release of Charmed Slurm.
--->
+Charmed Slurm will follow behind upstream Slurm releases by one release - approximately six months. Feature freeze for the next Charmed Slurm release will be up to 6 months after a new version of Slurm is released by SchedMD, with a soft freeze around the four month mark. This timeframe is for maintainers to add new features to the Slurm charms, and backport the previous release of Slurm to the current Ubuntu LTS release. Example schedule:
 
 ```mermaid
 gantt
@@ -71,16 +61,16 @@ Outside exceptional circumstances, each Charmed Slurm release will receive bug a
 
 Version format: `<upstream Slurm version>-<minor/patch version #>`. Example Charmed Slurm release numbers:
 
-- Charmed Slurm now includes Slurm 25.11: `25.11-0`
-- Bugfix is released: `25.11-1` 
-- Security update is released: `25.11-2`
+- Charmed Slurm now includes Slurm 25.11: "25.11-0"
+- Bugfix is released: "25.11-1"
+- Security update is released: "25.11-2"
 
 * Major release - new version of Slurm, feature changes, new Ubuntu base version
     * This version number will only change with the new version of Slurm. 
 * Minor release - bug and security fixes
   * Note that running `juju refresh` is necessary to pull latest security and bug fix updates
 
-The minor version numbers will be used for release notes and will list corresponding revision numbers for each charm. Unless explictely stated otherwise, when a Charmed Slurm release is referenced - `23.11` - the latest minor patch in the stable branch is included. 
+The minor version numbers will be used for release notes and will list corresponding revision numbers for each charm. Unless explicitly stated otherwise, when a Charmed Slurm release is referenced - "25.11" - the latest minor patch in the stable branch is included. 
 
 
 ### Release channels
@@ -98,26 +88,10 @@ The minor version numbers will be used for release notes and will list correspon
 Warnings/limitations that will be included in the published documentation alongside the release notes:
 
 * Users are expected to use the charm version (Charmhub track) that comes with a specific Slurm release
-  * For example, Charmed Slurm version 23.11 should *only* be use with the 23.11 release of Slurm 
+  * For example, Charmed Slurm version 25.11 should *only* be use with the 25.11 release of Slurm 
 * Due to potential breaking changes between major Slurm releases, Charmed Slurm cannot guarantee backwards compatibility with previous major Charmed Slurm versions
   * If a user requirement necessitates versions that are not from corresponding releases, they should open an issue on Github
 (or Support Discussion) and contact the team
-
-## Process for updates
-
-* Docementation for migrating to a new version
-* Dedicate a team member to doing upgrade/refresh tests
-* Ubuntu version updates will likely be more costly than service version
-
-### Security Patches
-
-* Pushed to edge, release after standard testing process
-
-## Supported Artifacts
-
-<!-- List of supported artifacts with source code links and issue tracker refs
- -->
-
 
 ## Examples
 
@@ -168,3 +142,4 @@ General Release Notes sections:
 |:--------|:--------|:--------------------|:------------|
 | 2025-07-09 | Braindump | [Ashley Cliff](mailto:ashley.cliff@canonical.com) | Initial braindump |
 | 2025-07-15 | Braindump | [Ashley Cliff](mailto:ashley.cliff@canonical.com) | Initial braindump |
+| 2025-10-25 |           | [Ashley Cliff](mailto:ashley.cliff@canonical.com) | |
