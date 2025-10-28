@@ -41,7 +41,7 @@ gantt
    dateFormat YYYY-MM
    section Slurm
         Slurm 26.05 released by SchedMD                         :milestone, a1, 2026-05, 0d
-        Slurm 26.05 backport to Noble Numbat (Ubuntu 24.04 LTS) :after a1, 60d
+        Slurm 26.05 backport to Resolute Raccoon (Ubuntu 26.04 LTS) :after a1, 60d
    section Charmed Slurm
         Feature development from Slurm 26.05                    :2026-05, until b1
         'Soft freeze'                                           :milestone, b1, 2026-09, 0d
