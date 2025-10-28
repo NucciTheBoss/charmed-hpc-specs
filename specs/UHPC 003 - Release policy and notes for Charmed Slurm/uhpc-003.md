@@ -142,4 +142,4 @@ General Release Notes sections:
 |:--------|:--------|:--------------------|:------------|
 | 2025-07-09 | Braindump | [Ashley Cliff](mailto:ashley.cliff@canonical.com) | Initial braindump |
 | 2025-07-15 | Braindump | [Ashley Cliff](mailto:ashley.cliff@canonical.com) | Initial braindump |
-| 2025-10-25 |           | [Ashley Cliff](mailto:ashley.cliff@canonical.com) | |
+| 2025-10-25 | Pending Review | [Ashley Cliff](mailto:ashley.cliff@canonical.com) | PR opened, approved once merged|
